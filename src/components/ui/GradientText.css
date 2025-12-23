@@ -1,0 +1,43 @@
+.animated-gradient-text {
+  position: relative;
+  display: inline-block;
+}
+
+.text-content {
+  background-size: 400% 400%;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gradient-shift linear infinite;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.gradient-overlay {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background-size: 400% 400%;
+  animation: gradient-shift linear infinite;
+  border-radius: 8px;
+  z-index: -1;
+}
+
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+/* Glow effect for extra futuristic look */
+.animated-gradient-text .text-content {
+  filter: drop-shadow(0 0 20px rgba(64, 255, 170, 0.3));
+}

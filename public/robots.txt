@@ -1,0 +1,29 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://h2pro.ru/sitemap.xml
+
+# Crawl delay for better server performance
+Crawl-delay: 1
+
+# Allow important resources
+Allow: /src/assets/
+Allow: /lovable-uploads/
+Allow: /certificates/
+
+# Specific bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: YandexBot
+Allow: /
+
+User-agent: Twitterbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /

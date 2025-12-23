@@ -1,0 +1,117 @@
+.animated-partner-card-wrapper {
+  --card-opacity: 0.6;
+  --pointer-x: 50%;
+  --pointer-y: 50%;
+  --pointer-from-center: 0;
+  --rotate-x: 0deg;
+  --rotate-y: 0deg;
+  
+  perspective: 1000px;
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.animated-partner-card {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: 
+    rotateY(var(--rotate-x)) 
+    rotateX(var(--rotate-y));
+  transition: 
+    transform 0.1s ease-out,
+    box-shadow 0.3s ease-out;
+  will-change: transform;
+  border-radius: 1.5rem;
+  overflow: hidden;
+}
+
+.animated-partner-card-wrapper:not(.active) .animated-partner-card {
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.animated-partner-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform: translateZ(20px);
+  z-index: 2;
+}
+
+.animated-partner-shine {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: radial-gradient(
+    farthest-side circle at var(--pointer-x) var(--pointer-y),
+    hsla(var(--primary), calc(var(--card-opacity) * 0.6)) 4%,
+    hsla(var(--primary), calc(var(--card-opacity) * 0.4)) 10%,
+    hsla(var(--primary), calc(var(--card-opacity) * 0.2)) 50%,
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+  border-radius: 1.5rem;
+  mix-blend-mode: overlay;
+}
+
+.animated-partner-card-wrapper.active .animated-partner-shine {
+  opacity: 1;
+}
+
+.animated-partner-glare {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    hsla(0, 0%, 100%, 0.05) calc(var(--pointer-from-center) * 50%),
+    transparent 100%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease-out;
+  pointer-events: none;
+  border-radius: 1.5rem;
+  mix-blend-mode: overlay;
+}
+
+.animated-partner-card-wrapper.active .animated-partner-glare {
+  opacity: 1;
+}
+
+.animated-partner-card-wrapper.active .animated-partner-card {
+  box-shadow: 
+    0 20px 40px -10px rgba(0, 0, 0, 0.3),
+    0 0 60px -10px hsla(var(--primary), 0.4);
+}
+
+/* Optimize for mobile */
+@media (max-width: 768px) {
+  .animated-partner-card-wrapper {
+    perspective: 800px;
+  }
+  
+  .animated-partner-card {
+    transform: 
+      rotateY(calc(var(--rotate-x) * 0.7)) 
+      rotateX(calc(var(--rotate-y) * 0.7));
+  }
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animated-partner-card,
+  .animated-partner-shine,
+  .animated-partner-glare {
+    transition: none !important;
+    animation: none !important;
+  }
+  
+  .animated-partner-card {
+    transform: none !important;
+  }
+}
