@@ -83,9 +83,9 @@ const ProductCard = memo(({ product, index, onOrderClick }: ProductCardProps) =>
           <div className="absolute top-2 right-2 bg-gradient-to-r from-primary to-secondary text-background text-xs font-bold px-2 py-1 rounded-full shadow-lg">
             {engineLabel}
           </div>
-          <div className="absolute top-12 right-2 bg-gradient-to-r from-primary to-secondary text-background text-xs font-bold px-2 py-1 rounded-full shadow-lg">
+          {/* <div className="absolute top-12 right-2 bg-gradient-to-r from-primary to-secondary text-background text-xs font-bold px-2 py-1 rounded-full shadow-lg">
             Рассрочка - 0%
-          </div>
+          </div> */}
         </div>
         <CardTitle className="text-2xl font-bold text-foreground">{product.name}</CardTitle>
         <CardDescription className="text-muted-foreground">{product.description}</CardDescription>
@@ -143,14 +143,14 @@ const ProductCard = memo(({ product, index, onOrderClick }: ProductCardProps) =>
         >
           Заказать установку
         </GlowButton>
-        <GlowButton 
+        {/* <GlowButton 
           variant="outline" 
           size="lg" 
           className="w-full text-sm font-medium" 
           onClick={() => setCreditModalOpen(true)}
         >
           Купить в рассрочку
-        </GlowButton>
+        </GlowButton> */}
       </CardFooter>
 
       <CreditModal
