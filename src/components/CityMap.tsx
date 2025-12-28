@@ -63,7 +63,6 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
   
-  // Состояния должны быть ЗДЕСЬ
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRegion, setSelectedRegion] = useState<string>("Все");
   const [showBookingForm, setShowBookingForm] = useState(false);
@@ -72,7 +71,6 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
 
   const MAPBOX_TOKEN = 'pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA';
 
-  // Функция для открытия формы из глобального окна Popup
   const handleOpenForm = (cityName: string) => {
     const city = cityLocations.find(c => c.name === cityName);
     if (city) {
@@ -81,7 +79,6 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
     }
   };
 
-  // Делаем функцию доступной глобально для HTML-строк Mapbox
   useEffect(() => {
     (window as any).openBookingForm = handleOpenForm;
   }, []);
@@ -151,7 +148,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         map.current = null;
       }
     };
-  }, [isFormSubmitted]); // Перерисовываем маркеры при отправке формы
+  }, [isFormSubmitted]);
 
   useEffect(() => {
     cityLocations.forEach((city, index) => {
@@ -197,19 +194,100 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
 
       {showBookingForm && selectedCityForBooking && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md">
+          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md shadow-2xl">
             <h3 className="text-xl font-bold text-[#00f0ff] mb-4">Запись: {selectedCityForBooking.name}</h3>
-            <form className="space-y-4" onSubmit={(e) => {
+            
+            <form className="space-y-4" onSubmit={async (e) => {
               e.preventDefault();
-              setIsFormSubmitted(true);
-              localStorage.setItem('form_submitted', 'true');
-              setShowBookingForm(false);
+              
+              const formData = new FormData(e.currentTarget);
+              const name = formData.get('userName') as string;
+              const phone = formData.get('userPhone') as string;
+              const cityName = selectedCityForBooking.name;
+              const address = selectedCityForBooking.address;
+              const service = selectedCityForBooking.serviceType === 'truck' ? 'Грузовой' : 
+                               selectedCityForBooking.serviceType === 'passenger' ? 'Легковой' : 'Оба типа';
+
+              try {
+                // ШАГ 1: Создание контакта
+                const contactResponse = await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.contact.add.json', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    fields: {
+                      NAME: name,
+                      PHONE: [{ VALUE: phone, VALUE_TYPE: "WORK" }],
+                      SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf"
+                    }
+                  })
+                });
+                
+                const contactData = await contactResponse.json();
+                const contactId = contactData.result;
+
+                if (!contactId) throw new Error("Ошибка создания контакта");
+
+                // ШАГ 2: Создание сделки с привязкой контакта
+                await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.deal.add.json', {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    fields: {
+                      TITLE: `Заявка: ${cityName} (${service}: ${address})`,
+                      CONTACT_ID: contactId,
+                      CATEGORY_ID: 9,
+                      SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
+                      COMMENTS: `Клиент выбрал город: ${cityName}. Адрес сервиса: ${address}. Тип сервиса: ${service}.`,
+                    },
+                    params: { REGISTER_SONET_EVENT: "N" }
+                  })
+                });
+
+                // Успешный финал
+                setIsFormSubmitted(true);
+                localStorage.setItem('form_submitted', 'true');
+                setShowBookingForm(false);
+              } catch (error) {
+                console.error(error);
+                alert("Произошла ошибка при отправке заявки. Попробуйте еще раз.");
+              }
             }}>
-              <input name="userName" placeholder="Имя" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white" />
-              <input name="userPhone" placeholder="Телефон" type="tel" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white" />
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Ваше имя</label>
+                <input 
+                  name="userName" 
+                  placeholder="Иван" 
+                  required 
+                  className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none transition-colors" 
+                />
+              </div>
+
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Телефон</label>
+                <input 
+                  name="userPhone" 
+                  type="tel" 
+                  placeholder="+7 (___) ___-__-__" 
+                  required 
+                  className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none transition-colors" 
+                />
+              </div>
+
+              <div className="p-3 bg-primary/5 rounded-lg border border-primary/10">
+                <p className="text-xs text-gray-400">Автоматически будет указано:</p>
+                <p className="text-sm text-white font-medium">г. {selectedCityForBooking.name}</p>
+                <p className="text-sm text-white font-medium">Сервис: {selectedCityForBooking.serviceType === 'truck' ? 'Грузовой' : selectedCityForBooking.serviceType === 'passenger' ? 'Легковой' : 'Универсальный'}</p>
+              </div>
+              
               <div className="flex gap-2 pt-2">
-                <GlowButton variant="primary" className="flex-1" type="submit">Получить номер</GlowButton>
-                <button type="button" onClick={() => setShowBookingForm(false)} className="px-4 text-gray-400">Отмена</button>
+                <GlowButton variant="primary" className="flex-1" type="submit">
+                  Получить номер
+                </GlowButton>
+                <button 
+                  type="button" 
+                  onClick={() => setShowBookingForm(false)} 
+                  className="px-4 text-gray-400 hover:text-white transition-colors"
+                >
+                  Отмена
+                </button>
               </div>
             </form>
           </div>
