@@ -102,7 +102,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         const innerEl = document.createElement('div');
         innerEl.style.width = '100%';
         innerEl.style.height = '100%';
-        innerEl.style.backgroundImage = 'url(/assets/city-marker1.png)';
+        innerEl.style.backgroundImage = 'url(/assets/marker.png)';
         innerEl.style.backgroundSize = 'contain';
         innerEl.style.backgroundRepeat = 'no-repeat';
         innerEl.style.backgroundPosition = 'center';
