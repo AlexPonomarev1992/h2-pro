@@ -29,7 +29,7 @@ const Navigation = memo(() => {
     { label: "О компании", href: "#about" },
     { label: "H2 Генераторы", href: "#products" },
     { label: "Eco Pro", href: "/eco-pro", isRoute: true },
-    { label: "Рассрочка", href: "/installment", isRoute: true },
+    // { label: "Рассрочка", href: "/installment", isRoute: true },
     { label: "FAQ", href: "#faq" },
     { label: "Контакты", href: "#contacts" }
   ], [])
