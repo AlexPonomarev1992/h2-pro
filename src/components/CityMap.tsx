@@ -67,7 +67,9 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
   const [selectedRegion, setSelectedRegion] = useState<string>("Все");
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedCityForBooking, setSelectedCityForBooking] = useState<CityLocation | null>(null);
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);  //const [isFormSubmitted, setIsFormSubmitted] = useState(localStorage.getItem('form_submitted') === 'true');
+  
+  // Храним имя города, в котором создана запись
+  const [submittedCityName, setSubmittedCityName] = useState<string | null>(null);
 
   const MAPBOX_TOKEN = 'pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA';
 
@@ -118,18 +120,21 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         innerEl.style.filter = 'drop-shadow(0 0 5px #00f0ff)';
         el.appendChild(innerEl);
 
+        // Динамический контент попапа в зависимости от того, записался ли клиент именно в ЭТОМ городе
+        const isThisCitySubmitted = submittedCityName === city.name;
+
         const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
           <div style="padding: 12px; min-width: 200px; font-family: sans-serif; background: #0B121B; color: #fff; border-radius: 8px;">
             <div style="font-weight: 700; color: #00f0ff; margin-bottom: 4px; font-size: 16px;">${city.name}</div>
             <div style="font-size: 13px; color: #888; margin-bottom: 4px;">📍 ${city.address}</div>
             <div style="font-size: 14px; color: #fff; margin-bottom: 12px; font-weight: bold;">
-              📞 ${isFormSubmitted ? city.phone : '+7 (XXX) XXX-XX-XX'}
+              📞 ${isThisCitySubmitted ? city.phone : '+7 (XXX) XXX-XX-XX'}
             </div>
             <button 
-              onclick="window.openBookingForm('${city.name}')"
-              style="display: block; width: 100%; padding: 10px; background: ${isFormSubmitted ? 'transparent' : 'linear-gradient(90deg, #00f0ff, #0072ff)'}; color: ${isFormSubmitted ? '#00f0ff' : '#000'}; border: ${isFormSubmitted ? '1px solid #00f0ff' : 'none'}; border-radius: 6px; font-weight: bold; cursor: pointer;"
+              onclick="${isThisCitySubmitted ? '' : `window.openBookingForm('${city.name}')`}"
+              style="display: block; width: 100%; padding: 10px; background: ${isThisCitySubmitted ? 'transparent' : 'linear-gradient(90deg, #00f0ff, #0072ff)'}; color: ${isThisCitySubmitted ? '#00f0ff' : '#000'}; border: ${isThisCitySubmitted ? '1px solid #00f0ff' : 'none'}; border-radius: 6px; font-weight: bold; cursor: ${isThisCitySubmitted ? 'default' : 'pointer'};"
             >
-              ${isFormSubmitted ? 'Запись создана' : 'Записаться на сервис'}
+              ${isThisCitySubmitted ? 'Запись создана' : 'Записаться на сервис'}
             </button>
           </div>
         `);
@@ -148,7 +153,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         map.current = null;
       }
     };
-  }, [isFormSubmitted]);
+  }, [submittedCityName]); // Карта перерисуется только при изменении статуса записи
 
   useEffect(() => {
     cityLocations.forEach((city, index) => {
@@ -201,21 +206,18 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
               e.preventDefault();
               
               const formData = new FormData(e.currentTarget);
-              const name = formData.get('userName') as string;
-              const phone = formData.get('userPhone') as string;
-              const cityName = selectedCityForBooking.name;
-              const address = selectedCityForBooking.address;
-              const service = selectedCityForBooking.serviceType === 'truck' ? 'Грузовой' : 
-                               selectedCityForBooking.serviceType === 'passenger' ? 'Легковой' : 'Оба типа';
+              const userName = formData.get('userName') as string;
+              const userPhone = formData.get('userPhone') as string;
 
               try {
-                // ШАГ 1: Создание контакта
+                // ШАГ 1: Создание контакта (Исправлено NAME и PHONE)
                 const contactResponse = await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.contact.add.json', {
                   method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
                     fields: {
-                      NAME: name,
-                      PHONE: [{ VALUE: phone, VALUE_TYPE: "WORK" }],
+                      NAME: userName,
+                      PHONE: [{ "VALUE": userPhone, "VALUE_TYPE": "WORK" }],
                       SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf"
                     }
                   })
@@ -223,32 +225,38 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
                 
                 const contactData = await contactResponse.json();
                 const contactId = contactData.result;
-                console.log("Контакт создан, ID:", contactId); // Лог в консоль
-                if (!contactId) throw new Error("Ошибка создания контакта");
+                
+                if (!contactId) {
+                  console.error("Ошибка Битрикс (Контакт):", contactData);
+                  throw new Error("Не удалось создать контакт");
+                }
 
-                // 2. Создаем сделку
-    const dealRes = await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.deal.add.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        fields: {
-          TITLE: `Заявка: ${selectedCityForBooking?.name}`,
-          CONTACT_ID: contactId,
-          CATEGORY_ID: 9,
-          SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
-          COMMENTS: `Адрес: ${selectedCityForBooking?.address}`
-        }
-      })
-    });
+                // ШАГ 2: Создание сделки (Добавлен телефон сервиса в коммент)
+                const dealRes = await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.deal.add.json', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    fields: {
+                      TITLE: `Заявка: ${selectedCityForBooking.name}`,
+                      CONTACT_ID: contactId,
+                      CATEGORY_ID: 9,
+                      COMMENTS: `Адрес сервиса: ${selectedCityForBooking.address}\nТелефон сервиса: ${selectedCityForBooking.phone}`,
+                      SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf"
+                    }
+                  })
+                });
+                
                 const dealData = await dealRes.json();
-                console.log("Сделка создана, ID:", dealData.result); // Лог в консоль
-                // Успешный финал
-                setIsFormSubmitted(true);
-                localStorage.setItem('form_submitted', 'true');
-                setShowBookingForm(false);
+
+                if (dealData.result) {
+                  setSubmittedCityName(selectedCityForBooking.name);
+                  setShowBookingForm(false);
+                } else {
+                  throw new Error("Не удалось создать сделку");
+                }
               } catch (error) {
                 console.error(error);
-                alert("Произошла ошибка при отправке заявки. Попробуйте еще раз.");
+                alert("Ошибка при отправке. Проверьте подключение к интернету.");
               }
             }}>
               <div>
@@ -266,7 +274,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
                 <input 
                   name="userPhone" 
                   type="tel" 
-                  placeholder="+7 (___) ___-__-__" 
+                  placeholder="+7 (999) 000-00-00" 
                   required 
                   className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none transition-colors" 
                 />
