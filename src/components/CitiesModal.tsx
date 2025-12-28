@@ -5,6 +5,7 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
+  DialogPortal, // Добавляем Portal для корректных слоев
 } from "@/components/ui/dialog";
 import { GlowButton } from "@/components/ui/glow-button";
 import { MapPin, MessageCircle, Map, Car, Truck, Phone, X, Loader2 } from "lucide-react";
@@ -77,7 +78,6 @@ export const CitiesModal = ({ open, onOpenChange }: CitiesModalProps) => {
     const phone = formData.get('userPhone');
 
     try {
-      // 1. Создаем контакт
       const contactRes = await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.contact.add.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -87,16 +87,16 @@ export const CitiesModal = ({ open, onOpenChange }: CitiesModalProps) => {
       });
       const contactData = await contactRes.json();
 
-      // 2. Создаем сделку
       await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.deal.add.json', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           fields: {
-            TITLE: `Запись из списка: ${targetBranch.name}`,
+            TITLE: `Заявка: ${targetBranch.name}`,
             CONTACT_ID: contactData.result,
             CATEGORY_ID: 9,
-            COMMENTS: `Адрес: ${targetBranch.address}\nТелефон: ${targetBranch.phone}`
+            COMMENTS: `Адрес: ${targetBranch.address}`,
+            SOURCE_ID: "WEB"
           }
         })
       });
@@ -104,7 +104,7 @@ export const CitiesModal = ({ open, onOpenChange }: CitiesModalProps) => {
       setSubmittedBranchKey(`${targetBranch.name}-${targetBranch.address}`);
       setShowBookingForm(false);
     } catch (err) {
-      alert("Ошибка отправки заявки");
+      alert("Ошибка отправки");
     } finally {
       setIsSubmitting(false);
     }
@@ -113,7 +113,7 @@ export const CitiesModal = ({ open, onOpenChange }: CitiesModalProps) => {
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-[#0B121B] border-[#00E5FF]/30 text-white">
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto bg-[#0B121B] border-[#00E5FF]/30 text-white z-[50]">
           <DialogHeader>
             <DialogTitle className="text-2xl font-bold flex items-center gap-2 text-[#00E5FF]">
               <MapPin className="w-6 h-6" />
@@ -215,31 +215,61 @@ export const CitiesModal = ({ open, onOpenChange }: CitiesModalProps) => {
         </DialogContent>
       </Dialog>
 
-      {/* Модальное окно записи поверх основного списка */}
+      {/* Модальное окно записи с исправленным z-index и информацией о сервисе */}
       {showBookingForm && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0B121B] border border-[#00E5FF]/30 p-8 rounded-2xl w-full max-w-md relative shadow-2xl">
-            <button onClick={() => setShowBookingForm(false)} className="absolute top-4 right-4 text-gray-500 hover:text-white"><X /></button>
-            <h3 className="text-2xl font-bold text-white mb-2">Запись в сервис</h3>
-            <p className="text-gray-400 mb-6">{targetBranch?.name}, {targetBranch?.address}</p>
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
+          <div className="bg-[#0B121B] border border-[#00E5FF]/30 p-8 rounded-2xl w-full max-w-md relative shadow-[0_0_50px_rgba(0,229,255,0.15)]">
+            <button 
+              onClick={() => setShowBookingForm(false)} 
+              className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
             
-            <form onSubmit={handleBookingSubmit} className="space-y-4">
-              <input 
-                name="userName" 
-                required 
-                className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF]" 
-                placeholder="Ваше имя" 
-              />
-              <input 
-                name="userPhone" 
-                type="tel" 
-                required 
-                className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF]" 
-                placeholder="+7 (999) 000-00-00" 
-              />
-              <GlowButton variant="primary" className="w-full py-4" type="submit" disabled={isSubmitting}>
-                {isSubmitting ? <Loader2 className="animate-spin" /> : "Получить номер мастера"}
-              </GlowButton>
+            {/* Заголовок как на карте */}
+            <h3 className="text-2xl font-bold text-[#00f0ff] mb-6">Запись: {targetBranch?.name}</h3>
+            
+            <form onSubmit={handleBookingSubmit} className="space-y-5">
+              <div className="space-y-1">
+                <label className="text-sm text-gray-400 ml-1">Ваше имя</label>
+                <input 
+                  name="userName" 
+                  required 
+                  className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF] transition-all" 
+                  placeholder="Иван" 
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-sm text-gray-400 ml-1">Телефон</label>
+                <input 
+                  name="userPhone" 
+                  type="tel" 
+                  required 
+                  className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF] transition-all" 
+                  placeholder="+7 (999) 000-00-00" 
+                />
+              </div>
+
+              {/* Блок информации о сервисе */}
+              <div className="bg-[#161F30]/50 border border-white/5 rounded-xl p-4 space-y-1">
+                <div className="text-xs text-gray-500 uppercase tracking-wider">Автоматически будет указано:</div>
+                <div className="text-white font-semibold">г. {targetBranch?.name}</div>
+                <div className="text-[#00E5FF] text-sm">Сервис: {targetBranch?.address}</div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <GlowButton variant="primary" className="flex-1 py-4" type="submit" disabled={isSubmitting}>
+                  {isSubmitting ? <Loader2 className="animate-spin" /> : "Получить номер"}
+                </GlowButton>
+                <button 
+                  type="button"
+                  onClick={() => setShowBookingForm(false)}
+                  className="px-6 text-gray-400 hover:text-white transition-colors text-sm font-medium"
+                >
+                  Отмена
+                </button>
+              </div>
             </form>
           </div>
         </div>
