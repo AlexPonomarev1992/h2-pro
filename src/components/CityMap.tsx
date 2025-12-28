@@ -108,6 +108,10 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         innerEl.style.backgroundPosition = 'center';
         innerEl.style.transition = 'transform 0.2s ease-out';
         innerEl.title = ''; // Remove default tooltip
+            // ДОБАВЬТЕ ЭТУ СТРОКУ:
+        innerEl.style.mixBlendMode = 'screen'; 
+            // И это для усиления свечения (опционально):
+        innerEl.style.filter = 'drop-shadow(0 0 5px #00f0ff)';
         
         el.appendChild(innerEl);
         
