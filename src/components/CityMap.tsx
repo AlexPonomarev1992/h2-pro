@@ -223,24 +223,25 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
                 
                 const contactData = await contactResponse.json();
                 const contactId = contactData.result;
-
+                console.log("Контакт создан, ID:", contactId); // Лог в консоль
                 if (!contactId) throw new Error("Ошибка создания контакта");
 
-                // ШАГ 2: Создание сделки с привязкой контакта
-                await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.deal.add.json', {
-                  method: 'POST',
-                  body: JSON.stringify({
-                    fields: {
-                      TITLE: `Заявка: ${cityName} (${service}: ${address})`,
-                      CONTACT_ID: contactId,
-                      CATEGORY_ID: 9,
-                      SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
-                      COMMENTS: `Клиент выбрал город: ${cityName}. Адрес сервиса: ${address}. Тип сервиса: ${service}.`,
-                    },
-                    params: { REGISTER_SONET_EVENT: "N" }
-                  })
-                });
-
+                // 2. Создаем сделку
+    const dealRes = await fetch('https://h2pro.bitrix24.ru/rest/1/xmv4aig8i7ug15lw/crm.deal.add.json', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        fields: {
+          TITLE: `Заявка: ${selectedCityForBooking?.name}`,
+          CONTACT_ID: contactId,
+          CATEGORY_ID: 9,
+          SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
+          COMMENTS: `Адрес: ${selectedCityForBooking?.address}`
+        }
+      })
+    });
+                const dealData = await dealRes.json();
+                console.log("Сделка создана, ID:", dealData.result); // Лог в консоль
                 // Успешный финал
                 setIsFormSubmitted(true);
                 localStorage.setItem('form_submitted', 'true');
