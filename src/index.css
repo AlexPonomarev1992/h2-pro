@@ -230,3 +230,30 @@ All colors MUST be HSL for proper theming.
     }
   }
 }
+
+/* Стилизация всплывающего окна Mapbox под стиль сайта */
+.mapboxgl-popup-content {
+  background: #0B121B !important; /* Твой основной темный фон */
+  border: 1px solid #00E5FF !important; /* Твой неоновый циан */
+  border-radius: 12px !important;
+  padding: 15px !important;
+  box-shadow: 0 0 15px rgba(0, 229, 255, 0.2) !important;
+  color: #F0FFFF !important; /* Светлый текст */
+}
+
+/* Перекрашиваем стрелочку (хвостик) снизу */
+.mapboxgl-popup-tip {
+  border-top-color: #00E5FF !important;
+}
+
+/* Кнопка закрытия */
+.mapboxgl-popup-close-button {
+  color: #00E5FF !important;
+  font-size: 16px;
+  outline: none;
+}
+
+/* Чтобы ссылка в поп-апе не была синей */
+.mapboxgl-popup-content a {
+  color: #00E5FF !important;
+}
