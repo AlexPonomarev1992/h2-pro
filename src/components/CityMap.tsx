@@ -16,7 +16,16 @@ interface CityLocation {
   phone: string;   // Добавили телефон
   serviceType: 'passenger' | 'truck' | 'both'; // Тип сервиса
 }
+// Добавьте в начало компонента CityMap
+const [showBookingForm, setShowBookingForm] = useState(false);
+const [selectedCityForBooking, setSelectedCityForBooking] = useState<CityLocation | null>(null);
+const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
+// Функция, которая будет вызываться из Popup карты
+const handleBookClick = (city: CityLocation) => {
+  setSelectedCityForBooking(city);
+  setShowBookingForm(true);
+};
 const cityLocations: CityLocation[] = [
   { name: "Краснодар (Центр)", coordinates: [38.9769, 45.0355], region: "Юг", address: "ул. Красная, 120", phone: "+7 (900) 123-45-67", serviceType: "both" },
   { name: "Краснодар (Север)", coordinates: [38.9800, 45.0500], region: "Юг", address: "ул. Дальняя, 4", phone: "+7 (900) 765-43-21", serviceType: "passenger" },
@@ -131,31 +140,29 @@ const serviceTypeLabels = {
 };
 
 const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-  `<div style="padding: 12px; min-width: 200px; font-family: sans-serif;">
+  `<div style="padding: 12px; min-width: 200px; font-family: sans-serif; background: #0B121B; color: #fff; border-radius: 8px;">
     <div style="font-weight: 700; color: #00f0ff; margin-bottom: 4px; font-size: 16px;">${city.name}</div>
     <div style="font-size: 13px; color: #888; margin-bottom: 4px;">📍 ${city.address}</div>
-    <div style="font-size: 13px; color: #fff; margin-bottom: 8px;">📞 ${city.phone}</div>
-    <div style="font-size: 12px; padding: 4px 8px; background: rgba(0, 240, 255, 0.1); border-radius: 4px; color: #00f0ff; margin-bottom: 12px; display: inline-block;">
-      ${serviceTypeLabels[city.serviceType]}
+    
+    <div id="phone-container-${index}" style="font-size: 14px; color: #fff; margin-bottom: 12px; font-weight: bold;">
+      📞 ${isFormSubmitted ? city.phone : '+7 (XXX) XXX-XX-XX'}
     </div>
+
     <button 
       id="book-button-${index}"
       style="
         display: block;
         width: 100%;
         padding: 10px;
-        background: linear-gradient(90deg, #00f0ff, #0072ff);
-        color: #000;
-        border: none;
+        background: ${isFormSubmitted ? 'transparent' : 'linear-gradient(90deg, #00f0ff, #0072ff)'};
+        color: ${isFormSubmitted ? '#00f0ff' : '#000'};
+        border: ${isFormSubmitted ? '1px solid #00f0ff' : 'none'};
         border-radius: 6px;
         font-weight: bold;
         cursor: pointer;
-        transition: transform 0.2s;
       "
-      onmouseover="this.style.transform='scale(1.02)'"
-      onmouseout="this.style.transform='scale(1)'"
     >
-      Записаться на сервис
+      ${isFormSubmitted ? 'Запись создана' : 'Записаться на сервис'}
     </button>
   </div>`
 );
@@ -225,42 +232,89 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
     ? cityLocations.length 
     : cityLocations.filter(city => city.region === selectedRegion).length;
 
-  return (
-    <div className="space-y-4">
-      {/* Region Filter */}
-      <div className="space-y-2">
-        <p className="text-sm font-medium text-foreground">
-          Фильтр по регионам ({filteredCitiesCount} {filteredCitiesCount === 1 ? 'город' : filteredCitiesCount < 5 ? 'города' : 'городов'})
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {regions.map((region) => (
-            <GlowButton
-              key={region}
-              variant={selectedRegion === region ? "primary" : "outline"}
-              size="sm"
-              onClick={() => setSelectedRegion(region)}
-            >
-              {region}
-            </GlowButton>
-          ))}
+ return (
+    <>
+      <div className="space-y-4">
+        {/* Region Filter */}
+        <div className="space-y-2">
+          <p className="text-sm font-medium text-foreground">
+            Фильтр по регионам ({filteredCitiesCount} {filteredCitiesCount === 1 ? 'город' : filteredCitiesCount < 5 ? 'города' : 'городов'})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {regions.map((region) => (
+              <GlowButton
+                key={region}
+                variant={selectedRegion === region ? "primary" : "outline"}
+                size="sm"
+                onClick={() => setSelectedRegion(region)}
+              >
+                {region}
+              </GlowButton>
+            ))}
+          </div>
+        </div>
+
+        {/* Map Container */}
+        <div className="relative w-full h-[500px]">
+          {isLoading && (
+            <div className="absolute inset-0 flex items-center justify-center bg-background-secondary rounded-lg border border-border z-10">
+              <div className="flex flex-col items-center gap-3">
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
+                <p className="text-sm text-muted-foreground">Загрузка карты...</p>
+              </div>
+            </div>
+          )}
+          <div
+            ref={mapContainer}
+            className="w-full h-full rounded-lg border border-border shadow-lg"
+            style={{ 
+              filter: 'brightness(0.7) contrast(1.2)', // Опционально: делает стандартную карту темнее
+              background: '#0B121B' 
+            }}
+          />
         </div>
       </div>
 
-      {/* Map Container */}
-      <div className="relative w-full h-[500px]">
-        {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-background-secondary rounded-lg border border-border z-10">
-            <div className="flex flex-col items-center gap-3">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
-              <p className="text-sm text-muted-foreground">Загрузка карты...</p>
-            </div>
+      {/* Booking Form Modal */}
+      {showBookingForm && selectedCityForBooking && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md shadow-[0_0_30px_rgba(0,240,255,0.1)] animate-in fade-in zoom-in duration-200">
+            <h3 className="text-xl font-bold text-[#00f0ff] mb-4">Запись: {selectedCityForBooking.name}</h3>
+            
+            <form className="space-y-4" onSubmit={(e) => {
+              e.preventDefault();
+              setIsFormSubmitted(true);
+              localStorage.setItem('form_submitted', 'true'); // Сохраняем статус, чтобы номер не скрывался после перезагрузки
+              setShowBookingForm(false);
+              alert("Заявка отправлена! Теперь номера телефонов на карте открыты.");
+            }}>
+              <div>
+                <label className="text-xs text-gray-400 block mb-1">Ваш город</label>
+                <input 
+                  type="text" 
+                  defaultValue={selectedCityForBooking.name}
+                  className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none"
+                />
+              </div>
+              <input placeholder="Имя" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
+              <input placeholder="Телефон" type="tel" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
+              
+              <div className="flex gap-2 pt-2">
+                <GlowButton variant="primary" className="flex-1" type="submit">
+                  Получить номер сервиса
+                </GlowButton>
+                <button 
+                  type="button"
+                  onClick={() => setShowBookingForm(false)}
+                  className="px-4 text-gray-400 hover:text-white transition-colors"
+                >
+                  Отмена
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-        <div
-          ref={mapContainer}
-          className="w-full h-full rounded-lg border border-border shadow-lg"
-        />
-      </div>
-    </div>
+        </div>
+      )}
+    </>
   );
 };
