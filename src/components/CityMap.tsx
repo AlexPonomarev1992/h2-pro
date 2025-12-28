@@ -184,7 +184,7 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
         
         // Fade in with staggered delay
         setTimeout(() => {
-          el.style.opacity = '1';
+          el.style.opacity = '0.7';
         }, index * 50 + 300);
       });
     } catch (error) {
