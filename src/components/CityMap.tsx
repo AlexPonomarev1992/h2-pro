@@ -67,7 +67,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
   const [selectedRegion, setSelectedRegion] = useState<string>("Все");
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedCityForBooking, setSelectedCityForBooking] = useState<CityLocation | null>(null);
-  const [isFormSubmitted, setIsFormSubmitted] = useState(false);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(false);  //const [isFormSubmitted, setIsFormSubmitted] = useState(localStorage.getItem('form_submitted') === 'true');
 
   const MAPBOX_TOKEN = 'pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA';
 
