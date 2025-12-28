@@ -235,7 +235,7 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
  return (
     <>
       <div className="space-y-4">
-        {/* Region Filter */}
+        {/* Фильтр регионов */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-foreground">
             Фильтр по регионам ({filteredCitiesCount} {filteredCitiesCount === 1 ? 'город' : filteredCitiesCount < 5 ? 'города' : 'городов'})
@@ -254,7 +254,7 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
           </div>
         </div>
 
-        {/* Map Container */}
+        {/* Контейнер карты */}
         <div className="relative w-full h-[500px]">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-background-secondary rounded-lg border border-border z-10">
@@ -267,37 +267,35 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
           <div
             ref={mapContainer}
             className="w-full h-full rounded-lg border border-border shadow-lg"
-            style={{ 
-              filter: 'brightness(0.7) contrast(1.2)', // Опционально: делает стандартную карту темнее
-              background: '#0B121B' 
-            }}
+            style={{ background: '#0B121B' }} // Фон из твоего дизайна
           />
         </div>
       </div>
 
-      {/* Booking Form Modal */}
+      {/* Модальное окно формы (внутри фрагмента, чтобы не было ошибки) */}
       {showBookingForm && selectedCityForBooking && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
-          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md shadow-[0_0_30px_rgba(0,240,255,0.1)] animate-in fade-in zoom-in duration-200">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md shadow-[0_0_30px_rgba(0,240,255,0.2)]">
             <h3 className="text-xl font-bold text-[#00f0ff] mb-4">Запись: {selectedCityForBooking.name}</h3>
             
-            <form className="space-y-4" onSubmit={(e) => {
+            <form className="space-y-4" onSubmit={async (e) => {
               e.preventDefault();
+              // Тут будет логика Bitrix24, о которой мы говорили
               setIsFormSubmitted(true);
-              localStorage.setItem('form_submitted', 'true'); // Сохраняем статус, чтобы номер не скрывался после перезагрузки
+              localStorage.setItem('form_submitted', 'true');
               setShowBookingForm(false);
-              alert("Заявка отправлена! Теперь номера телефонов на карте открыты.");
             }}>
               <div>
                 <label className="text-xs text-gray-400 block mb-1">Ваш город</label>
                 <input 
                   type="text" 
-                  defaultValue={selectedCityForBooking.name}
-                  className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none"
+                  readOnly
+                  value={selectedCityForBooking.name}
+                  className="w-full bg-[#0F1621] border border-border p-2 rounded text-white outline-none"
                 />
               </div>
-              <input placeholder="Имя" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
-              <input placeholder="Телефон" type="tel" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
+              <input name="userName" placeholder="Имя" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
+              <input name="userPhone" placeholder="Телефон" type="tel" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
               
               <div className="flex gap-2 pt-2">
                 <GlowButton variant="primary" className="flex-1" type="submit">
