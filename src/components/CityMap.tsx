@@ -10,22 +10,13 @@ interface CityMapProps {
 
 interface CityLocation {
   name: string;
-  coordinates: [number, number]; // [longitude, latitude]
+  coordinates: [number, number];
   region: string;
-  address: string; // Добавили адрес
-  phone: string;   // Добавили телефон
-  serviceType: 'passenger' | 'truck' | 'both'; // Тип сервиса
+  address: string;
+  phone: string;
+  serviceType: 'passenger' | 'truck' | 'both';
 }
-// Добавьте в начало компонента CityMap
-const [showBookingForm, setShowBookingForm] = useState(false);
-const [selectedCityForBooking, setSelectedCityForBooking] = useState<CityLocation | null>(null);
-const [isFormSubmitted, setIsFormSubmitted] = useState(false);
 
-// Функция, которая будет вызываться из Popup карты
-const handleBookClick = (city: CityLocation) => {
-  setSelectedCityForBooking(city);
-  setShowBookingForm(true);
-};
 const cityLocations: CityLocation[] = [
   { name: "Краснодар (Центр)", coordinates: [38.9769, 45.0355], region: "Юг", address: "ул. Красная, 120", phone: "+7 (900) 123-45-67", serviceType: "both" },
   { name: "Краснодар (Север)", coordinates: [38.9800, 45.0500], region: "Юг", address: "ул. Дальняя, 4", phone: "+7 (900) 765-43-21", serviceType: "passenger" },
@@ -71,32 +62,45 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const map = useRef<mapboxgl.Map | null>(null);
   const markers = useRef<mapboxgl.Marker[]>([]);
+  
+  // Состояния должны быть ЗДЕСЬ
   const [isLoading, setIsLoading] = useState(true);
   const [selectedRegion, setSelectedRegion] = useState<string>("Все");
+  const [showBookingForm, setShowBookingForm] = useState(false);
+  const [selectedCityForBooking, setSelectedCityForBooking] = useState<CityLocation | null>(null);
+  const [isFormSubmitted, setIsFormSubmitted] = useState(localStorage.getItem('form_submitted') === 'true');
+
   const MAPBOX_TOKEN = 'pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA';
+
+  // Функция для открытия формы из глобального окна Popup
+  const handleOpenForm = (cityName: string) => {
+    const city = cityLocations.find(c => c.name === cityName);
+    if (city) {
+      setSelectedCityForBooking(city);
+      setShowBookingForm(true);
+    }
+  };
+
+  // Делаем функцию доступной глобально для HTML-строк Mapbox
+  useEffect(() => {
+    (window as any).openBookingForm = handleOpenForm;
+  }, []);
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
 
     try {
       mapboxgl.accessToken = MAPBOX_TOKEN;
-
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/navigation-night-v1',
-        center: [65, 55], // Center on Russia
+        center: [65, 55],
         zoom: 3,
       });
 
-      // Add navigation controls
       map.current.addControl(new mapboxgl.NavigationControl(), 'top-right');
+      map.current.on('load', () => setIsLoading(false));
 
-      // Wait for map to load
-      map.current.on('load', () => {
-        setIsLoading(false);
-      });
-
-      // Add markers for each city with fade-in animation
       cityLocations.forEach((city, index) => {
         const el = document.createElement('div');
         el.className = 'city-marker';
@@ -105,9 +109,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         el.style.cursor = 'pointer';
         el.style.opacity = '0';
         el.style.transition = 'opacity 0.5s ease-in-out';
-        el.title = ''; // Remove default tooltip
         
-        // Create inner element for the image to avoid positioning conflicts
         const innerEl = document.createElement('div');
         innerEl.style.width = '100%';
         innerEl.style.height = '100%';
@@ -115,130 +117,59 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
         innerEl.style.backgroundSize = 'contain';
         innerEl.style.backgroundRepeat = 'no-repeat';
         innerEl.style.backgroundPosition = 'center';
-        innerEl.style.transition = 'transform 0.2s ease-out';
-        innerEl.title = ''; // Remove default tooltip
-            // ДОБАВЬТЕ ЭТУ СТРОКУ:
-        innerEl.style.mixBlendMode = 'screen'; 
-            // И это для усиления свечения (опционально):
+        innerEl.style.mixBlendMode = 'screen';
         innerEl.style.filter = 'drop-shadow(0 0 5px #00f0ff)';
-        
         el.appendChild(innerEl);
-        
-        // Hover effect on inner element to avoid positioning issues
-        el.addEventListener('mouseenter', () => {
-          innerEl.style.transform = 'scale(1.2)';
-        });
-        el.addEventListener('mouseleave', () => {
-          innerEl.style.transform = 'scale(1)';
-        });
 
-        // Добавьте этот вспомогательный объект перед popup
-const serviceTypeLabels = {
-  passenger: "🚗 Только легковые",
-  truck: "🚛 Только грузовые",
-  both: "🛠 Легковые и грузовые"
-};
+        const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+          <div style="padding: 12px; min-width: 200px; font-family: sans-serif; background: #0B121B; color: #fff; border-radius: 8px;">
+            <div style="font-weight: 700; color: #00f0ff; margin-bottom: 4px; font-size: 16px;">${city.name}</div>
+            <div style="font-size: 13px; color: #888; margin-bottom: 4px;">📍 ${city.address}</div>
+            <div style="font-size: 14px; color: #fff; margin-bottom: 12px; font-weight: bold;">
+              📞 ${isFormSubmitted ? city.phone : '+7 (XXX) XXX-XX-XX'}
+            </div>
+            <button 
+              onclick="window.openBookingForm('${city.name}')"
+              style="display: block; width: 100%; padding: 10px; background: ${isFormSubmitted ? 'transparent' : 'linear-gradient(90deg, #00f0ff, #0072ff)'}; color: ${isFormSubmitted ? '#00f0ff' : '#000'}; border: ${isFormSubmitted ? '1px solid #00f0ff' : 'none'}; border-radius: 6px; font-weight: bold; cursor: pointer;"
+            >
+              ${isFormSubmitted ? 'Запись создана' : 'Записаться на сервис'}
+            </button>
+          </div>
+        `);
 
-const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-  `<div style="padding: 12px; min-width: 200px; font-family: sans-serif; background: #0B121B; color: #fff; border-radius: 8px;">
-    <div style="font-weight: 700; color: #00f0ff; margin-bottom: 4px; font-size: 16px;">${city.name}</div>
-    <div style="font-size: 13px; color: #888; margin-bottom: 4px;">📍 ${city.address}</div>
-    
-    <div id="phone-container-${index}" style="font-size: 14px; color: #fff; margin-bottom: 12px; font-weight: bold;">
-      📞 ${isFormSubmitted ? city.phone : '+7 (XXX) XXX-XX-XX'}
-    </div>
-
-    <button 
-      id="book-button-${index}"
-      style="
-        display: block;
-        width: 100%;
-        padding: 10px;
-        background: ${isFormSubmitted ? 'transparent' : 'linear-gradient(90deg, #00f0ff, #0072ff)'};
-        color: ${isFormSubmitted ? '#00f0ff' : '#000'};
-        border: ${isFormSubmitted ? '1px solid #00f0ff' : 'none'};
-        border-radius: 6px;
-        font-weight: bold;
-        cursor: pointer;
-      "
-    >
-      ${isFormSubmitted ? 'Запись создана' : 'Записаться на сервис'}
-    </button>
-  </div>`
-);
-
-        // Add event listener for the button after popup opens
-        popup.on('open', () => {
-          const button = document.getElementById(`book-button-${index}`);
-          if (button) {
-            button.addEventListener('click', () => {
-              if (onClose) {
-                onClose();
-              }
-              // Small delay to allow modal to close before scrolling
-              setTimeout(() => {
-                const contactsSection = document.getElementById('contacts');
-                if (contactsSection) {
-                  contactsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }
-              }, 300);
-            });
-          }
-        });
-
-        const marker = new mapboxgl.Marker(el)
-          .setLngLat(city.coordinates)
-          .setPopup(popup)
-          .addTo(map.current!);
-
+        const marker = new mapboxgl.Marker(el).setLngLat(city.coordinates).setPopup(popup).addTo(map.current!);
         markers.current.push(marker);
-        
-        // Fade in with staggered delay
-        setTimeout(() => {
-          el.style.opacity = '0.7';
-        }, index * 50 + 300);
+        setTimeout(() => { el.style.opacity = '0.7'; }, index * 50 + 300);
       });
     } catch (error) {
-      console.error('Error initializing map:', error);
       setIsLoading(false);
     }
 
     return () => {
       if (map.current) {
-        markers.current.forEach(marker => marker.remove());
-        markers.current = [];
         map.current.remove();
         map.current = null;
       }
     };
-  }, []);
+  }, [isFormSubmitted]); // Перерисовываем маркеры при отправке формы
 
-  // Filter markers by region
   useEffect(() => {
     cityLocations.forEach((city, index) => {
       const marker = markers.current[index];
       if (marker) {
-        const element = marker.getElement();
-        if (selectedRegion === "Все" || city.region === selectedRegion) {
-          element.style.display = 'block';
-        } else {
-          element.style.display = 'none';
-        }
+        marker.getElement().style.display = (selectedRegion === "Все" || city.region === selectedRegion) ? 'block' : 'none';
       }
     });
   }, [selectedRegion]);
 
-  const filteredCitiesCount = selectedRegion === "Все" 
-    ? cityLocations.length 
-    : cityLocations.filter(city => city.region === selectedRegion).length;
+  const filteredCitiesCount = selectedRegion === "Все" ? cityLocations.length : cityLocations.filter(city => city.region === selectedRegion).length;
 
- return (
+  return (
     <>
       <div className="space-y-4">
-        {/* Фильтр регионов */}
         <div className="space-y-2">
           <p className="text-sm font-medium text-foreground">
-            Фильтр по регионам ({filteredCitiesCount} {filteredCitiesCount === 1 ? 'город' : filteredCitiesCount < 5 ? 'города' : 'городов'})
+            Фильтр по регионам ({filteredCitiesCount})
           </p>
           <div className="flex flex-wrap gap-2">
             {regions.map((region) => (
@@ -254,60 +185,31 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
           </div>
         </div>
 
-        {/* Контейнер карты */}
         <div className="relative w-full h-[500px]">
           {isLoading && (
             <div className="absolute inset-0 flex items-center justify-center bg-background-secondary rounded-lg border border-border z-10">
-              <div className="flex flex-col items-center gap-3">
-                <Loader2 className="w-8 h-8 text-primary animate-spin" />
-                <p className="text-sm text-muted-foreground">Загрузка карты...</p>
-              </div>
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           )}
-          <div
-            ref={mapContainer}
-            className="w-full h-full rounded-lg border border-border shadow-lg"
-            style={{ background: '#0B121B' }} // Фон из твоего дизайна
-          />
+          <div ref={mapContainer} className="w-full h-full rounded-lg border border-border shadow-lg" style={{ background: '#0B121B' }} />
         </div>
       </div>
 
-      {/* Модальное окно формы (внутри фрагмента, чтобы не было ошибки) */}
       {showBookingForm && selectedCityForBooking && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
-          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md shadow-[0_0_30px_rgba(0,240,255,0.2)]">
+          <div className="bg-[#0B121B] border border-[#00f0ff]/30 p-6 rounded-xl w-full max-w-md">
             <h3 className="text-xl font-bold text-[#00f0ff] mb-4">Запись: {selectedCityForBooking.name}</h3>
-            
-            <form className="space-y-4" onSubmit={async (e) => {
+            <form className="space-y-4" onSubmit={(e) => {
               e.preventDefault();
-              // Тут будет логика Bitrix24, о которой мы говорили
               setIsFormSubmitted(true);
               localStorage.setItem('form_submitted', 'true');
               setShowBookingForm(false);
             }}>
-              <div>
-                <label className="text-xs text-gray-400 block mb-1">Ваш город</label>
-                <input 
-                  type="text" 
-                  readOnly
-                  value={selectedCityForBooking.name}
-                  className="w-full bg-[#0F1621] border border-border p-2 rounded text-white outline-none"
-                />
-              </div>
-              <input name="userName" placeholder="Имя" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
-              <input name="userPhone" placeholder="Телефон" type="tel" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white focus:border-[#00f0ff] outline-none" />
-              
+              <input name="userName" placeholder="Имя" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white" />
+              <input name="userPhone" placeholder="Телефон" type="tel" required className="w-full bg-[#0F1621] border border-border p-2 rounded text-white" />
               <div className="flex gap-2 pt-2">
-                <GlowButton variant="primary" className="flex-1" type="submit">
-                  Получить номер сервиса
-                </GlowButton>
-                <button 
-                  type="button"
-                  onClick={() => setShowBookingForm(false)}
-                  className="px-4 text-gray-400 hover:text-white transition-colors"
-                >
-                  Отмена
-                </button>
+                <GlowButton variant="primary" className="flex-1" type="submit">Получить номер</GlowButton>
+                <button type="button" onClick={() => setShowBookingForm(false)} className="px-4 text-gray-400">Отмена</button>
               </div>
             </form>
           </div>
