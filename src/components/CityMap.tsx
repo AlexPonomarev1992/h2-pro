@@ -74,7 +74,7 @@ export const CityMap = ({ onClose }: CityMapProps = {}) => {
 
       map.current = new mapboxgl.Map({
         container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/streets-v12',
+        style: 'mapbox://styles/mapbox/dark-v11',
         center: [65, 55], // Center on Russia
         zoom: 3,
       });
