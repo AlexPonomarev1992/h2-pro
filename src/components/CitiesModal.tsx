@@ -218,52 +218,76 @@ export const CitiesModal = ({ open, onOpenChange }: CitiesModalProps) => {
         </DialogContent>
       </Dialog>
 
-      {/* Модальное окно записи через Портал (теперь точно сверху) */}
-      <Dialog open={showBookingForm} onOpenChange={setShowBookingForm}>
-        <DialogPortal>
-          <DialogOverlay className="fixed inset-0 z-[9998] bg-black/80 backdrop-blur-sm" />
-          <div className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-md translate-x-[-50%] translate-y-[-50%] p-4 outline-none">
-            <div className="bg-[#0B121B] border border-[#00E5FF]/30 p-8 rounded-2xl relative shadow-[0_0_50px_rgba(0,229,255,0.15)] text-white">
-              <button 
-                onClick={() => setShowBookingForm(false)} 
-                className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
-              >
-                <X className="w-6 h-6" />
-              </button>
-              
-              <h3 className="text-2xl font-bold text-[#00f0ff] mb-6">Запись: {targetBranch?.name}</h3>
-              
-              <form onSubmit={handleBookingSubmit} className="space-y-5">
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-400 ml-1">Ваше имя</label>
-                  <input name="userName" required className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF]" placeholder="Имя" />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-sm text-gray-400 ml-1">Телефон</label>
-                  <input name="userPhone" type="tel" required className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF]" placeholder="+7 (999) 000-00-00" />
-                </div>
-
-                {/* Инфо-блок идентичный карте */}
-                <div className="bg-[#161F30]/50 border border-white/5 rounded-xl p-4 space-y-1">
-                  <div className="text-xs text-gray-500 uppercase tracking-wider">Автоматически будет указано:</div>
-                  <div className="text-white font-semibold">г. {targetBranch?.name}</div>
-                  <div className="text-[#00E5FF] text-sm">Сервис: {targetBranch?.address}</div>
-                </div>
-
-                <div className="flex gap-3 pt-2">
-                  <GlowButton variant="primary" className="flex-1 py-4" type="submit" disabled={isSubmitting}>
-                    {isSubmitting ? <Loader2 className="animate-spin" /> : "Получить номер"}
-                  </GlowButton>
-                  <button type="button" onClick={() => setShowBookingForm(false)} className="px-6 text-gray-400 hover:text-white text-sm font-medium">
-                    Отмена
-                  </button>
-                </div>
-              </form>
-            </div>
+      {/* Модальное окно записи через Портал */}
+<Dialog 
+  open={showBookingForm} 
+  onOpenChange={(open) => {
+    if (!open) setShowBookingForm(false);
+  }}
+>
+  <DialogPortal>
+    <DialogOverlay className="fixed inset-0 z-[9998] bg-black/90 backdrop-blur-sm" />
+    <div 
+      className="fixed left-[50%] top-[50%] z-[9999] w-full max-w-md translate-x-[-50%] translate-y-[-50%] p-4 outline-none"
+      // Останавливаем всплытие кликов, чтобы нижнее окно не закрывалось
+      onPointerDown={(e) => e.stopPropagation()}
+    >
+      <div className="bg-[#0B121B] border border-[#00E5FF]/30 p-8 rounded-2xl relative shadow-[0_0_50px_rgba(0,229,255,0.15)] text-white">
+        <button 
+          onClick={() => setShowBookingForm(false)} 
+          className="absolute top-4 right-4 text-gray-500 hover:text-white transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        
+        <h3 className="text-2xl font-bold text-[#00f0ff] mb-6">Запись: {targetBranch?.name}</h3>
+        
+        <form onSubmit={handleBookingSubmit} className="space-y-5">
+          <div className="space-y-1">
+            <label className="text-sm text-gray-400 ml-1">Ваше имя</label>
+            <input 
+              name="userName" 
+              required 
+              autoFocus // Добавляем фокус сразу при открытии
+              className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF]" 
+              placeholder="Имя" 
+            />
           </div>
-        </DialogPortal>
-      </Dialog>
+
+          <div className="space-y-1">
+            <label className="text-sm text-gray-400 ml-1">Телефон</label>
+            <input 
+              name="userPhone" 
+              type="tel" 
+              required 
+              className="w-full bg-[#0F1722] border border-white/10 rounded-lg p-3 text-white outline-none focus:border-[#00E5FF]" 
+              placeholder="+7 (999) 000-00-00" 
+            />
+          </div>
+
+          <div className="bg-[#161F30]/50 border border-white/5 rounded-xl p-4 space-y-1">
+            <div className="text-xs text-gray-500 uppercase tracking-wider">Автоматически будет указано:</div>
+            <div className="text-white font-semibold">г. {targetBranch?.name}</div>
+            <div className="text-[#00E5FF] text-sm">Сервис: {targetBranch?.address}</div>
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <GlowButton variant="primary" className="flex-1 py-4" type="submit" disabled={isSubmitting}>
+              {isSubmitting ? <Loader2 className="animate-spin mx-auto" /> : "Получить номер"}
+            </GlowButton>
+            <button 
+              type="button" 
+              onClick={() => setShowBookingForm(false)} 
+              className="px-6 text-gray-400 hover:text-white text-sm font-medium"
+            >
+              Отмена
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </DialogPortal>
+</Dialog>
     </>
   );
 };
