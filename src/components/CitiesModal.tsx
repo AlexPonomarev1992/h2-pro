@@ -40,7 +40,8 @@ export const CitiesModal = ({ open, onOpenChange }: any) => {
   const [submittedKey, setSubmittedKey] = useState<string | null>(null);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange} modal={false}>
+
       <DialogContent className="bg-[#0B121B] text-white max-w-3xl">
         <DialogHeader>
           <DialogTitle className="text-[#00f0ff] flex items-center gap-2">
