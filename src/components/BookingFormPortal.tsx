@@ -1,22 +1,21 @@
-import { createPortal } from "react-dom";
 import { GlowButton } from "@/components/ui/glow-button";
 
-interface Props {
-  title: string;
+interface BookingFormProps {
+  city: string;
   address: string;
   phone: string;
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export const BookingFormPortal = ({
-  title,
+export const BookingForm = ({
+  city,
   address,
   phone,
   onClose,
   onSuccess,
-}: Props) => {
-  return createPortal(
+}: BookingFormProps) => {
+  return (
     <div className="fixed inset-0 z-[10000] bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
       <form
         className="bg-[#0B121B] border border-[#00f0ff]/30 rounded-xl w-full max-w-md p-6"
@@ -32,7 +31,9 @@ export const BookingFormPortal = ({
               body: JSON.stringify({
                 fields: {
                   NAME: fd.get("name"),
-                  PHONE: [{ VALUE: fd.get("phone"), VALUE_TYPE: "WORK" }],
+                  PHONE: [
+                    { VALUE: fd.get("phone"), VALUE_TYPE: "WORK" },
+                  ],
                 },
               }),
             }
@@ -45,11 +46,12 @@ export const BookingFormPortal = ({
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({
                 fields: {
-                  TITLE: `Заявка: ${title}`,
+                  TITLE: `Заявка: ${city}`,
                   CONTACT_ID: contact.result,
                   CATEGORY_ID: 9,
-                  COMMENTS: `Адрес сервиса: ${address}\nТелефон сервиса: ${phone}`,
-                  SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
+                  COMMENTS: `Адрес: ${address}\nТелефон сервиса: ${phone}`,
+                  SOURCE_ID:
+                    "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
                 },
               }),
             }
@@ -59,8 +61,12 @@ export const BookingFormPortal = ({
         }}
       >
         <h3 className="text-xl font-bold text-[#00f0ff] mb-4">
-          Запись: {title}
+          Запись: {city}
         </h3>
+
+        <div className="text-sm text-gray-400 mb-4">
+          📍 {address}
+        </div>
 
         <input
           name="name"
@@ -89,7 +95,6 @@ export const BookingFormPortal = ({
           </button>
         </div>
       </form>
-    </div>,
-    document.body
+    </div>
   );
 };
