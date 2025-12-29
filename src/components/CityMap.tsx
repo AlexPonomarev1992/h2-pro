@@ -14,7 +14,7 @@ interface CityMapProps {
   submittedKey?: string | null;
 }
 
-const MAPBOX_TOKEN =
+mapboxgl.accessToken =
   "pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA";
 
 const cities: CityMapLocation[] = [
@@ -39,73 +39,34 @@ const cities: CityMapLocation[] = [
 ];
 
 export const CityMap = ({ onBooking, submittedKey }: CityMapProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const mapRef = useRef<mapboxgl.Map | null>(null);
+  const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!mapContainer.current || mapRef.current) return;
-
-    mapboxgl.accessToken = MAPBOX_TOKEN;
+    if (!ref.current) return;
 
     const map = new mapboxgl.Map({
-      container: mapContainer.current,
+      container: ref.current,
       style: "mapbox://styles/mapbox/navigation-night-v1",
       center: [65, 55],
       zoom: 3,
     });
 
-    mapRef.current = map;
-
     cities.forEach((city) => {
       const key = `${city.name}-${city.address}`;
-      const isSubmitted = submittedKey === key;
+      const submitted = submittedKey === key;
 
-      const popupHtml = `
-        <div style="
-          background:#0B121B;
-          padding:12px;
-          border-radius:8px;
-          min-width:220px;
-          color:#fff;
-          font-family:system-ui;
-        ">
-          <div style="font-weight:700;color:#00f0ff;margin-bottom:4px">
-            ${city.name}
-          </div>
-
-          <div style="font-size:13px;color:#9ca3af;margin-bottom:6px">
-            📍 ${city.address}
-          </div>
-
-          <div style="font-weight:bold;margin-bottom:10px">
-            📞 ${isSubmitted ? city.phone : "+7 (XXX) XXX-XX-XX"}
-          </div>
-
+      const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(`
+        <div style="color:#fff;font-family:system-ui">
+          <b style="color:#00f0ff">${city.name}</b><br/>
+          <small>${city.address}</small><br/><br/>
+          📞 ${submitted ? city.phone : "+7 (XXX) XXX-XX-XX"}<br/><br/>
           ${
-            isSubmitted
-              ? `<div style="color:#00f0ff;font-weight:700">
-                   Запись создана
-                 </div>`
-              : `<button
-                   data-booking="1"
-                   style="
-                     width:100%;
-                     padding:8px;
-                     border-radius:6px;
-                     background:linear-gradient(90deg,#00f0ff,#0072ff);
-                     color:#000;
-                     font-weight:700;
-                     border:none;
-                     cursor:pointer;
-                   "
-                 >
-                   Записаться
-                 </button>`
+            submitted
+              ? "<b style='color:#00f0ff'>Запись создана</b>"
+              : "<button id='book' style='padding:6px 10px'>Записаться</button>"
           }
         </div>
-      `;
-
-      const popup = new mapboxgl.Popup({ offset: 24 }).setHTML(popupHtml);
+      `);
 
       const marker = new mapboxgl.Marker()
         .setLngLat(city.coordinates)
@@ -113,27 +74,15 @@ export const CityMap = ({ onBooking, submittedKey }: CityMapProps) => {
         .addTo(map);
 
       popup.on("open", () => {
-        const popupEl = popup.getElement();
-        const btn = popupEl.querySelector(
-          'button[data-booking="1"]'
+        const btn = popup.getElement()?.querySelector(
+          "#book"
         ) as HTMLButtonElement | null;
-
-        if (btn) {
-          btn.onclick = () => onBooking(city);
-        }
+        if (btn) btn.onclick = () => onBooking(city);
       });
     });
 
-    return () => {
-      map.remove();
-      mapRef.current = null;
-    };
+    return () => map.remove();
   }, [onBooking, submittedKey]);
 
-  return (
-    <div
-      ref={mapContainer}
-      className="w-full h-full min-h-[500px] rounded-xl border border-white/10"
-    />
-  );
+  return <div ref={ref} className="w-full h-full" />;
 };
