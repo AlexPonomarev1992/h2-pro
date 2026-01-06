@@ -30,19 +30,21 @@ const branches = [
 export const CitiesModal = ({ open, onOpenChange }: any) => {
   const [view, setView] = useState<"list" | "map">("list");
   const [booking, setBooking] = useState<any>(null);
-  const [submittedKey, setSubmittedKey] = useState<string | null>(null);
+  const [submittedBranches, setSubmittedBranches] = useState<Set<string>>(new Set());
 
   const startBooking = (b: any) => {
     onOpenChange(false);
     setTimeout(() => setBooking(b), 0);
   };
 
+  const getBranchKey = (b: any) => `${b.city}-${b.address}`;
+
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="bg-[#0B121B] text-white max-w-3xl">
           <DialogHeader>
-            <DialogTitle className="text-[#00f0ff]">
+            <DialogTitle className="text-[#00f0ff] text-2xl">
               География работы
             </DialogTitle>
           </DialogHeader>
@@ -53,56 +55,75 @@ export const CitiesModal = ({ open, onOpenChange }: any) => {
               variant={view === "list" ? "primary" : "outline"}
               onClick={() => setView("list")}
             >
-              Список
+              📋 Список
             </GlowButton>
             <GlowButton
               size="sm"
               variant={view === "map" ? "primary" : "outline"}
               onClick={() => setView("map")}
             >
-              Карта
+              🗺️ Карта
             </GlowButton>
           </div>
 
           {view === "list" ? (
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[500px] overflow-y-auto pr-2">
               {branches.map((b, i) => {
-                const key = `${b.city}-${b.address}`;
-                const submitted = submittedKey === key;
+                const key = getBranchKey(b);
+                const submitted = submittedBranches.has(key);
 
                 return (
                   <div
                     key={i}
-                    className="p-4 bg-[#161F30] rounded-lg flex justify-between"
+                    className="p-4 bg-[#161F30] rounded-lg border border-[#00f0ff]/10 hover:border-[#00f0ff]/30 transition-colors"
                   >
-                    <div>
-                      <b>{b.city}</b>
-                      <div className="text-sm">{b.address}</div>
-                      <div className="text-sm">
-                        📞 {submitted ? b.phone : "+7 (XXX) XXX-XX-XX"}
+                    <div className="flex justify-between items-start gap-4">
+                      <div className="flex-1">
+                        <h4 className="text-lg font-bold text-[#00f0ff] mb-2">
+                          {b.city}
+                        </h4>
+                        <div className="text-sm text-gray-300 mb-1">
+                          📍 {b.address}
+                        </div>
+                        <div className="text-sm text-gray-300">
+                          📞 {submitted ? (
+                            <a href={`tel:${b.phone}`} className="text-[#00f0ff] hover:underline">
+                              {b.phone}
+                            </a>
+                          ) : (
+                            <span className="text-gray-500">+7 (XXX) XXX-XX-XX</span>
+                          )}
+                        </div>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        {submitted ? (
+                          <div className="text-center">
+                            <div className="text-[#00f0ff] font-bold mb-1">
+                              ✅ Заявка отправлена
+                            </div>
+                            <div className="text-xs text-gray-400">
+                              Контакты открыты
+                            </div>
+                          </div>
+                        ) : (
+                          <GlowButton
+                            size="sm"
+                            onClick={() => startBooking(b)}
+                          >
+                            Записаться
+                          </GlowButton>
+                        )}
                       </div>
                     </div>
-
-                    {submitted ? (
-                      <b className="text-[#00f0ff]">
-                        Запись создана
-                      </b>
-                    ) : (
-                      <GlowButton
-                        size="sm"
-                        onClick={() => startBooking(b)}
-                      >
-                        Записаться
-                      </GlowButton>
-                    )}
                   </div>
                 );
               })}
             </div>
           ) : (
-            <div className="h-[500px]">
+            <div className="h-[500px] rounded-lg overflow-hidden">
               <CityMap
-                submittedKey={submittedKey}
+                submittedBranches={submittedBranches}
                 onBooking={(c: CityMapLocation) =>
                   startBooking({
                     city: c.name,
@@ -123,10 +144,11 @@ export const CitiesModal = ({ open, onOpenChange }: any) => {
           phone={booking.phone}
           onClose={() => setBooking(null)}
           onSuccess={() => {
-            setSubmittedKey(
-              `${booking.city}-${booking.address}`
-            );
+            const key = getBranchKey(booking);
+            setSubmittedBranches(prev => new Set(prev).add(key));
             setBooking(null);
+            // Открываем модальное окно снова, чтобы показать контакты
+            onOpenChange(true);
           }}
         />
       )}
