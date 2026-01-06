@@ -141,6 +141,7 @@ export const CitiesModal = ({ open, onOpenChange }: any) => {
                     city: c.name,
                     address: c.address,
                     phone: c.phone,
+                    telegramId: c.telegramId,
                   })
                 }
               />
