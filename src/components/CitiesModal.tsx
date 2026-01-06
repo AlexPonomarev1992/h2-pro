@@ -154,6 +154,7 @@ export const CitiesModal = ({ open, onOpenChange }: any) => {
           city={booking.city}
           address={booking.address}
           phone={booking.phone}
+          telegramId={booking.telegramId}
           onClose={() => setBooking(null)}
           onSuccess={() => {
             const key = getBranchKey(booking);
