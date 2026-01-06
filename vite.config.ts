@@ -83,7 +83,7 @@ export default defineConfig({
     sourcemap: false,
     
     // Оптимизация для современных браузеров
-    target: 'es2015',
+    target: 'es2020',
   },
   
   // Оптимизация dev сервера
