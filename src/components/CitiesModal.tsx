@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { GlowButton } from "@/components/ui/glow-button";
 import { CityMap, CityMapLocation } from "@/components/CityMap";
-import { BookingForm } from "@/components/BookingForm";
+import { BookingForm } from "@/components/BookingFormPortal";
 
 const branches = [
   {
