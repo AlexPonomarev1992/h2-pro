@@ -1,4 +1,4 @@
-import { useState, lazy, Suspense } from "react";
+import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -6,10 +6,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { GlowButton } from "@/components/ui/glow-button";
+import { CityMap } from "@/components/CityMap";
 import { BookingForm } from "@/components/BookingFormPortal";
-
-// Ленивая загрузка карты - она загрузится только когда пользователь выберет вкладку "Карта"
-const CityMap = lazy(() => import("@/components/CityMap"));
 
 const branches = [
   { city: "Электросталь", address: "ул. Красная, 11 (Сервис S-LINE)", phone: "+7 (901) 797-01-41", telegramId: "6172146992" },
@@ -136,27 +134,17 @@ export const CitiesModal = ({ open, onOpenChange }: any) => {
             </div>
           ) : (
             <div className="h-[500px] rounded-lg overflow-hidden">
-              {/* Ленивая загрузка карты с индикатором загрузки */}
-              <Suspense fallback={
-                <div className="h-full flex items-center justify-center bg-[#161F30] rounded-lg">
-                  <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#00f0ff] mx-auto mb-4"></div>
-                    <div className="text-gray-400">Загрузка карты...</div>
-                  </div>
-                </div>
-              }>
-                <CityMap
-                  submittedBranches={submittedBranches}
-                  onBooking={(c: any) =>
-                    startBooking({
-                      city: c.name,
-                      address: c.address,
-                      phone: c.phone,
-                      telegramId: c.telegramId,
-                    })
-                  }
-                />
-              </Suspense>
+              <CityMap
+                submittedBranches={submittedBranches}
+                onBooking={(c: any) =>
+                  startBooking({
+                    city: c.name,
+                    address: c.address,
+                    phone: c.phone,
+                    telegramId: c.telegramId,
+                  })
+                }
+              />
             </div>
           )}
         </DialogContent>
