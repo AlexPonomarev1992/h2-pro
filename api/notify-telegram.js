@@ -1,31 +1,36 @@
-// api/notify-telegram.js
-// Этот файл нужно создать в папке /api/ вашего проекта
-
 export default async function handler(req, res) {
-  // Разрешаем только POST запросы
+  // Добавляем CORS заголовки
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Обработка preflight запроса
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
   const { telegramId, city, address, clientName, clientPhone, carBrand } = req.body;
   
-  // Проверяем обязательные поля
+  console.log('Received request:', { telegramId, city, clientName });
+  
   if (!telegramId || !city || !clientName) {
     return res.status(400).json({ 
       error: 'Missing required fields',
-      required: ['telegramId', 'city', 'clientName']
+      received: { telegramId, city, clientName }
     });
   }
 
-  // Получаем токен бота из переменных окружения
   const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
   
   if (!BOT_TOKEN) {
-    console.error('TELEGRAM_BOT_TOKEN is not set in environment variables');
+    console.error('TELEGRAM_BOT_TOKEN not set');
     return res.status(500).json({ error: 'Bot token not configured' });
   }
 
-  // Формируем красивое сообщение
   const message = `🔔 <b>Новая заявка на установку!</b>
 
 📍 <b>Город:</b> ${city}
@@ -38,7 +43,8 @@ export default async function handler(req, res) {
 ⏰ ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`;
 
   try {
-    // Отправляем сообщение через Telegram Bot API
+    console.log('Sending to Telegram, chat_id:', telegramId);
+    
     const response = await fetch(
       `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`,
       {
@@ -54,9 +60,14 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     
+    console.log('Telegram API response:', data);
+    
     if (!data.ok) {
       console.error('Telegram API error:', data);
-      throw new Error(data.description || 'Failed to send Telegram message');
+      return res.status(400).json({ 
+        error: data.description,
+        telegramError: data
+      });
     }
 
     return res.status(200).json({ 
@@ -65,16 +76,10 @@ export default async function handler(req, res) {
     });
     
   } catch (error) {
-    console.error('Telegram notification error:', error);
+    console.error('Error sending notification:', error);
     return res.status(500).json({ 
-      error: error.message || 'Failed to send notification'
+      error: error.message,
+      stack: error.stack
     });
   }
 }
-
-// Для локальной разработки можно добавить CORS
-export const config = {
-  api: {
-    bodyParser: true,
-  },
-};
