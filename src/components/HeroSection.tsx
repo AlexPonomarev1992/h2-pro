@@ -138,8 +138,8 @@ const HeroSection = memo(() => {
             </GlowButton>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-16 max-w-5xl mx-auto">
+          {/* Stats - ИЗМЕНЕНО: удален блок с рассрочкой */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
             <div className="bg-gradient-card p-6 rounded-lg border border-border shadow-card-dark">
               <h3 className="text-3xl font-bold text-neon-primary">1000+</h3>
               <p className="text-muted-foreground">Довольных клиентов</p>
@@ -151,10 +151,6 @@ const HeroSection = memo(() => {
             <div className="bg-gradient-card p-6 rounded-lg border border-border shadow-card-dark">
               <h3 className="text-3xl font-bold text-neon-primary">1 год</h3>
               <p className="text-muted-foreground">Гарантия</p>
-            </div>
-            <div className="bg-gradient-card p-6 rounded-lg border border-border shadow-card-dark">
-              <h3 className="text-3xl font-bold text-neon-secondary">0%</h3>
-              <p className="text-muted-foreground">Рассрочка</p>
             </div>
           </div>
         </div>
