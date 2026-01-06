@@ -13,6 +13,7 @@ export const BookingForm = ({
   city,
   address,
   phone,
+  telegramId,
   onClose,
   onSuccess,
 }: BookingFormProps) => {
@@ -23,6 +24,16 @@ export const BookingForm = ({
         onSubmit={async (e) => {
           e.preventDefault();
           const fd = new FormData(e.currentTarget);
+
+          console.log('📝 Отправка заявки:', {
+            city,
+            address,
+            phone,
+            telegramId,
+            clientName: fd.get("name"),
+            clientPhone: fd.get("phone"),
+            carBrand: fd.get("carBrand")
+          });
 
           try {
             // Создаем контакт
@@ -53,12 +64,39 @@ export const BookingForm = ({
                     TITLE: `Заявка: ${city}`,
                     CONTACT_ID: contact.result,
                     CATEGORY_ID: 9,
-                    COMMENTS: `Город: ${city}\nАдрес сервиса: ${address}\nТелефон сервиса: ${phone}\nМарка авто: ${fd.get("carBrand")}`,
+                    COMMENTS: `Город: ${city}\nАдрес сервиса: ${address}\nТелефон сервиса: ${phone}\nМарка авто: ${fd.get("carBrand")}\nTelegram ID ответственного: ${telegramId || 'не указан'}`,
                     SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
                   },
                 }),
               }
             );
+
+            // Отправляем уведомление в Telegram (если указан telegramId)
+            if (telegramId) {
+              console.log('📤 Отправка Telegram уведомления для:', telegramId);
+              try {
+                const telegramResponse = await fetch('/api/notify-telegram', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    telegramId,
+                    city,
+                    address,
+                    clientName: fd.get("name"),
+                    clientPhone: fd.get("phone"),
+                    carBrand: fd.get("carBrand")
+                  })
+                });
+                
+                const telegramResult = await telegramResponse.json();
+                console.log('✅ Telegram ответ:', telegramResult);
+              } catch (telegramError) {
+                console.error('❌ Telegram ошибка:', telegramError);
+                // Не показываем ошибку пользователю, т.к. заявка уже создана
+              }
+            } else {
+              console.warn('⚠️ telegramId не указан, уведомление не отправлено');
+            }
 
             onSuccess();
           } catch (error) {
