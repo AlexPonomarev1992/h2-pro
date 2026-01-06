@@ -10,7 +10,7 @@ import { CityMap, CityMapLocation } from "@/components/CityMap";
 import { BookingForm } from "@/components/BookingFormPortal";
 
 const branches = [
-  { city: "Электросталь", address: "ул. Красная, 11 (Сервис S-LINE)", phone: "+7 (901) 797-01-41", telegramId: "6172146992" },
+  { city: "Электросталь", address: "ул. Красная, 11 (Сервис S-LINE)", phone: "+7 (901) 797-01-41", telegramId: "6580254319" },
   { city: "Набережные Челны", address: "40 лет Победы, 72Б, 45 бокс", phone: "+7 (927) 456-38-88", telegramId: "343148963" },
   { city: "Магнитогорск", address: "ул. Люгарина, 128", phone: "+7 (967) 867-00-00", telegramId: "5483054" },
   { city: "Санкт-Петербург", address: "Ломоносов, гаражи КАС-9", phone: "+7 (911) 772-49-01", telegramId: "1304289325" },
