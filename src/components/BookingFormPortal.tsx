@@ -4,6 +4,7 @@ interface BookingFormProps {
   city: string;
   address: string;
   phone: string;
+  telegramId?: string;
   onClose: () => void;
   onSuccess: () => void;
 }
