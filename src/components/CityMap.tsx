@@ -18,7 +18,7 @@ interface CityMapProps {
 mapboxgl.accessToken =
   "pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA";
 
-const branchesMapbox = [
+const CityMap = [
   { name: "Вичуга", address: "Ивановская область", phone: "+7 (980) 685-03-51", telegramId: "", coordinates: [41.9189, 57.2215] },
   { name: "Екатеринбург", address: "ул. Артинская, 24", phone: "+7 (922) 181-43-58", telegramId: "955435796", coordinates: [60.6121, 56.8665] },
   { name: "Екатеринбург", address: "ул. 10 Самородная, д. 5, помещение 11", phone: "8-800-350-28-47", telegramId: "", coordinates: [60.5282, 56.7645] },
