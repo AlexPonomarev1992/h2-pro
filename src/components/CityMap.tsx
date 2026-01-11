@@ -132,19 +132,26 @@ export const CityMap = ({ onBooking, submittedBranches }: CityMapProps) => {
 
       // Создаем маркер с кастомным цветом
       const el = document.createElement('div');
-      el.className = 'custom-marker';
-      el.style.backgroundImage = submitted 
-        ? 'url(https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png)'
-        : 'url(https://docs.mapbox.com/mapbox-gl-js/assets/custom_marker.png)';
-      el.style.width = '30px';
-      el.style.height = '30px';
-      el.style.backgroundSize = '100%';
-      el.style.filter = submitted ? 'hue-rotate(0deg)' : 'hue-rotate(180deg)';
+el.className = 'custom-marker';
 
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(city.coordinates)
-        .setPopup(popup)
-        .addTo(map);
+// SVG код синего неонового маркера в стиле h2-pro
+el.innerHTML = `
+  <svg width="32" height="42" viewBox="0 0 32 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M16 0C7.16344 0 0 7.16344 0 16C0 24.8366 16 42 16 42C16 42 32 24.8366 32 16C32 7.16344 24.8366 0 16 0Z" 
+          fill="${submitted ? '#00f0ff' : '#0070ff'}" 
+          style="filter: drop-shadow(0px 0px 5px ${submitted ? '#00f0ff' : '#0070ff'});"/>
+    <circle cx="16" cy="16" r="6" fill="white"/>
+  </svg>
+`;
+
+el.style.width = '32px';
+el.style.height = '42px';
+el.style.cursor = 'pointer';
+
+const marker = new mapboxgl.Marker(el)
+  .setLngLat(city.coordinates)
+  .setPopup(popup)
+  .addTo(map);
 
       popup.on("open", () => {
         const btn = popup.getElement()?.querySelector(
