@@ -28,7 +28,7 @@ const cities: CityMapLocation[] = [
   { name: "Казань", address: "ул. Михаила Миля, 1/9", phone: "+7 (987) 223-97-76", telegramId: "7704973682", coordinates: [49.1065, 55.8455] },
   { name: "Казань", address: "ул. Патриса Лумумбы, 61", phone: "+7 (919) 682-84-46", telegramId: "", coordinates: [49.1862, 55.8005] },
   { name: "Краснодар", address: "ул. Дмитрия Ульянова, 92", phone: "+7 (978) 685-14-76", telegramId: "", coordinates: [38.9482, 45.0505] },
-  { name: "Краснодар", address: "ул. Куренная, 7", phone: "+7 (967) 309-16-19", telegramId: "1959086300", coordinates: [39.0205, 45.0855] },
+  { name: "Краснодар", address: "ул. Куренная, 7", phone: "+7 (967) 309-16-19", telegramId: "1959086300", coordinates: [39.113179024281834, 45.03540882346943] },
   { name: "Магнитогорск", address: "ул. Люгарина, 128", phone: "+7 (967) 867-00-00", telegramId: "5483054", coordinates: [58.9844, 53.3441] },
   { name: "Махачкала", address: "пр. Казбекова, 84", phone: "+7 (989) 871-87-00", telegramId: "8423657334", coordinates: [47.4565, 43.0185] },
   { name: "Махачкала", address: "ул. Космодромная, 64", phone: "+7 (906) 222-74-81", telegramId: "", coordinates: [47.4812, 42.9455] },
