@@ -24,7 +24,7 @@ export default async function handler(req, res) {
     });
   }
 
-  const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN;
+  const BOT_TOKEN = "8428469179:AAGA6K_qz0IjDUS6w9LCEY6lrYddz1P1JGA";
   
   if (!BOT_TOKEN) {
     console.error('TELEGRAM_BOT_TOKEN not set');
