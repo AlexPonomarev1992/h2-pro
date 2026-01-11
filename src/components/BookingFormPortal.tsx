@@ -65,7 +65,7 @@ export const BookingForm = ({
                     CONTACT_ID: contact.result,
                     CATEGORY_ID: 9,
                     COMMENTS: `Город: ${city}\nАдрес сервиса: ${address}\nТелефон сервиса: ${phone}\nМарка авто: ${fd.get("carBrand")}\nTelegram ID ответственного: ${telegramId || 'не указан'}`,
-                    SOURCE_ID: "WZda1ec0cc-c091-4839-9864-0b6bbd1b21bf",
+                    SOURCE_ID: "WEB",
                   },
                 }),
               }
