@@ -71,38 +71,43 @@ export const BookingForm = ({
               }
             );
 
-            // Отправляем уведомление в Telegram (если указан telegramId)
-            if (telegramId) {
-              console.log('📤 Отправка Telegram уведомления для:', telegramId);
-              try {
-                const telegramResponse = await fetch('/api/notify-telegram', {
-                  method: 'POST',
-                  headers: { 'Content-Type': 'application/json' },
-                  body: JSON.stringify({
-                    telegramId,
-                    city,
-                    address,
-                    clientName: fd.get("name"),
-                    clientPhone: fd.get("phone"),
-                    carBrand: fd.get("carBrand")
-                  })
-                });
-                
-                const telegramResult = await telegramResponse.json();
-                console.log('✅ Telegram ответ:', telegramResult);
-              } catch (telegramError) {
-                console.error('❌ Telegram ошибка:', telegramError);
-                // Не показываем ошибку пользователю, т.к. заявка уже создана
-              }
-            } else {
-              console.warn('⚠️ telegramId не указан, уведомление не отправлено');
-            }
+            // Внутри onSubmit в блоке try, после создания сделки в Битрикс:
 
-            onSuccess();
-          } catch (error) {
-            console.error("Ошибка отправки:", error);
-            alert("Произошла ошибка. Попробуйте еще раз.");
-          }
+if (telegramId) {
+  // 1. ВСТАВЬТЕ ВАШ ТОКЕН СЮДА (строкой в кавычках)
+  const BOT_TOKEN = "8428469179:AAGA6K_qz0IjDUS6w9LCEY6lrYddz1P1JGA"; 
+  
+  const message = `🔔 <b>Новая заявка на установку!</b>\n\n` +
+                  `📍 <b>Город:</b> ${city}\n` +
+                  `🏢 <b>Сервис:</b> ${address}\n\n` +
+                  `👤 <b>Клиент:</b> ${fd.get("name")}\n` +
+                  `📞 <b>Телефон:</b> ${fd.get("phone")}\n` +
+                  `🚗 <b>Автомобиль:</b> ${fd.get("carBrand")}\n\n` +
+                  `⏰ ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`;
+
+  try {
+    // Шлем напрямую на сервера Telegram, минуя наш /api/
+    const tgResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        chat_id: telegramId,
+        text: message,
+        parse_mode: 'HTML'
+      })
+    });
+
+    const tgData = await tgResponse.json();
+    
+    if (!tgData.ok) {
+      console.error('Telegram API вернул ошибку:', tgData.description);
+    } else {
+      console.log('✅ Уведомление успешно отправлено напрямую!');
+    }
+  } catch (tgError) {
+    console.error('Ошибка сети при отправке в ТГ:', tgError);
+  }
+}
         }}
       >
         <h3 className="text-xl font-bold text-[#00f0ff] mb-4">
