@@ -25,12 +25,6 @@ export const BookingForm = ({
           e.preventDefault();
           const fd = new FormData(e.currentTarget);
 
-          console.log('📝 Отправка заявки:', {
-            city,
-            telegramId,
-            clientName: fd.get("name"),
-          });
-
           try {
             // 1. Создаем контакт в Битрикс24
             const contactRes = await fetch(
@@ -67,33 +61,42 @@ export const BookingForm = ({
               }
             );
 
-            // 3. Отправляем в Telegram (напрямую)
-            if (telegramId) {
-              const BOT_TOKEN = "8428469179:AAGA6K_qz0IjDUS6w9LCEY6lrYddz1P1JGA";
-              const message = `🔔 <b>Новая заявка на установку!</b>\n\n` +
-                              `📍 <b>Город:</b> ${city}\n` +
-                              `🏢 <b>Сервис:</b> ${address}\n\n` +
-                              `👤 <b>Клиент:</b> ${fd.get("name")}\n` +
-                              `📞 <b>Телефон:</b> ${fd.get("phone")}\n` +
-                              `🚗 <b>Автомобиль:</b> ${fd.get("carBrand")}\n\n` +
-                              `⏰ ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`;
+            // 3. Работа с Telegram
+            const BOT_TOKEN = "8428469179:AAGA6K_qz0IjDUS6w9LCEY6lrYddz1P1JGA";
+            const ADMIN_ID = "7934547575"; // Ваш ID для дублирования
+            
+            const message = `🔔 <b>Новая заявка на установку!</b>\n\n` +
+                            `📍 <b>Город:</b> ${city}\n` +
+                            `🏢 <b>Сервис:</b> ${address}\n\n` +
+                            `👤 <b>Клиент:</b> ${fd.get("name")}\n` +
+                            `📞 <b>Телефон:</b> ${fd.get("phone")}\n` +
+                            `🚗 <b>Автомобиль:</b> ${fd.get("carBrand")}\n\n` +
+                            `⏰ ${new Date().toLocaleString('ru-RU', { timeZone: 'Europe/Moscow' })}`;
 
+            // Функция для отправки (чтобы не дублировать код)
+            const sendTg = async (chatId: string) => {
               try {
-                const tgRes = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                   method: 'POST',
                   headers: { 'Content-Type': 'application/json' },
                   body: JSON.stringify({
-                    chat_id: telegramId,
+                    chat_id: chatId,
                     text: message,
                     parse_mode: 'HTML'
                   })
                 });
-                const tgData = await tgRes.json();
-                if (!tgData.ok) console.error('TG API Error:', tgData.description);
-              } catch (tgErr) {
-                console.error('TG Network Error:', tgErr);
+              } catch (err) {
+                console.error(`Ошибка отправки на ${chatId}:`, err);
               }
+            };
+
+            // Отправляем ответственному за город (если есть)
+            if (telegramId && telegramId !== ADMIN_ID) {
+              await sendTg(telegramId);
             }
+
+            // Дублируем вам (ADMIN_ID)
+            await sendTg(ADMIN_ID);
 
             onSuccess();
           } catch (error) {
