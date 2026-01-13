@@ -101,7 +101,7 @@ const ContactSection = () => {
               <div className="text-xs md:text-sm text-muted-foreground mt-1">Клиентов</div>
             </div>
             <div className="text-center p-4 bg-gradient-card border border-border rounded-xl hover:border-primary transition-colors">
-              <div className="text-2xl md:text-3xl font-bold text-neon-primary">27</div>
+              <div className="text-2xl md:text-3xl font-bold text-neon-primary">26</div>
               <div className="text-xs md:text-sm text-muted-foreground mt-1">Городов</div>
             </div>
             <div className="text-center p-4 bg-gradient-card border border-border rounded-xl hover:border-primary transition-colors">
