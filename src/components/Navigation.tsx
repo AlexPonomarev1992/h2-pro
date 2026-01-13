@@ -85,7 +85,7 @@ const Navigation = memo(() => {
             </div>
 
             <div className="hidden md:flex items-center space-x-4">
-              
+              <a
                 href="tel:+79098530468"
                 className="flex items-center space-x-2 text-muted-foreground hover:text-primary transition-colors"
               >
@@ -153,7 +153,7 @@ const Navigation = memo(() => {
                   )
                 ))}
                 <div className="pt-4 pb-2 space-y-3">
-                  
+                  <a
                     href="tel:+79098530468"
                     className="flex items-center space-x-2 px-3 py-2 text-primary font-medium"
                   >
