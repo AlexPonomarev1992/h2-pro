@@ -138,19 +138,23 @@ const HeroSection = memo(() => {
             </GlowButton>
           </div>
 
-          {/* Stats - ИЗМЕНЕНО: удален блок с рассрочкой */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-8 mt-16 max-w-4xl mx-auto">
-            <div className="bg-gradient-card p-6 rounded-lg border border-border shadow-card-dark">
-              <h3 className="text-3xl font-bold text-neon-primary">1000+</h3>
-              <p className="text-muted-foreground">Довольных клиентов</p>
+          {/* Stats - 4 карточки */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 mt-16 max-w-5xl mx-auto px-4">
+            <div className="bg-gradient-card p-4 md:p-6 rounded-lg border border-border shadow-card-dark hover:border-primary/50 transition-all duration-300">
+              <h3 className="text-2xl md:text-3xl font-bold text-neon-primary">1000+</h3>
+              <p className="text-sm md:text-base text-muted-foreground">Клиентов</p>
             </div>
-            <div className="bg-gradient-card p-6 rounded-lg border border-border shadow-card-dark">
-              <h3 className="text-3xl font-bold text-neon-secondary">33</h3>
-              <p className="text-muted-foreground">город в СНГ</p>
+            <div className="bg-gradient-card p-4 md:p-6 rounded-lg border border-border shadow-card-dark hover:border-secondary/50 transition-all duration-300">
+              <h3 className="text-2xl md:text-3xl font-bold text-neon-secondary">26</h3>
+              <p className="text-sm md:text-base text-muted-foreground">Городов</p>
             </div>
-            <div className="bg-gradient-card p-6 rounded-lg border border-border shadow-card-dark">
-              <h3 className="text-3xl font-bold text-neon-primary">1 год</h3>
-              <p className="text-muted-foreground">Гарантия</p>
+            <div className="bg-gradient-card p-4 md:p-6 rounded-lg border border-border shadow-card-dark hover:border-primary/50 transition-all duration-300">
+              <h3 className="text-2xl md:text-3xl font-bold text-neon-primary">до 45%</h3>
+              <p className="text-sm md:text-base text-muted-foreground">Экономия</p>
+            </div>
+            <div className="bg-gradient-card p-4 md:p-6 rounded-lg border border-border shadow-card-dark hover:border-secondary/50 transition-all duration-300">
+              <h3 className="text-2xl md:text-3xl font-bold text-neon-secondary">1 год</h3>
+              <p className="text-sm md:text-base text-muted-foreground">Гарантия</p>
             </div>
           </div>
         </div>
