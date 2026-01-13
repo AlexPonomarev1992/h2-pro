@@ -161,7 +161,7 @@ const AboutSection = memo(() => {
 
           <div className="bg-gradient-card p-4 sm:p-8 rounded-xl border border-border shadow-card-dark text-center">
             <Globe className="w-8 h-8 sm:w-12 sm:h-12 text-secondary mx-auto mb-2 sm:mb-4" />
-            <h3 className="text-2xl sm:text-4xl font-bold text-neon-secondary mb-1 sm:mb-2">33 город в СНГ</h3>
+            <h3 className="text-2xl sm:text-4xl font-bold text-neon-secondary mb-1 sm:mb-2">26 городов в СНГ</h3>
             <GlowButton 
               variant="outline" 
               size="sm" 
