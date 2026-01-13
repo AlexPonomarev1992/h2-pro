@@ -50,12 +50,10 @@ const Navigation = memo(() => {
       }`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* Logo */}
             <div className="flex items-center">
               <OptimizedLogo size="small" priority={true} />
             </div>
 
-            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               {navItems.map((item) => (
                 item.isButton ? (
@@ -75,7 +73,7 @@ const Navigation = memo(() => {
                     {item.label}
                   </Link>
                 ) : (
-                  <a
+                  
                     key={item.label}
                     href={item.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
@@ -86,7 +84,6 @@ const Navigation = memo(() => {
               ))}
             </div>
 
-            {/* CTA Buttons */}
             <div className="hidden md:flex items-center space-x-4">
               
                 href="tel:+79098530468"
@@ -107,7 +104,6 @@ const Navigation = memo(() => {
               </GlowButton>
             </div>
 
-            {/* Mobile Call Button - Always Visible */}
             <div className="md:hidden flex items-center space-x-2">
               <a href="tel:+79098530468">
                 <GlowButton variant="outline" size="sm" className="bg-green-500/20 border-green-500 text-green-400 hover:bg-green-500/30 hover:text-green-300 gap-2">
@@ -115,7 +111,6 @@ const Navigation = memo(() => {
                   Позвонить
                 </GlowButton>
               </a>
-              {/* Mobile Menu Button */}
               <button
                 className="p-2 text-muted-foreground hover:text-primary transition-colors"
                 onClick={toggleMobileMenu}
@@ -125,7 +120,6 @@ const Navigation = memo(() => {
             </div>
           </div>
 
-          {/* Mobile Menu */}
           {isMobileMenuOpen && (
             <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-lg">
               <div className="px-2 pt-2 pb-3 space-y-1">
@@ -182,7 +176,6 @@ const Navigation = memo(() => {
         </div>
       </nav>
 
-      {/* Модальное окно География работы */}
       <CitiesModal 
         open={isServiceModalOpen} 
         onOpenChange={setIsServiceModalOpen} 
