@@ -85,8 +85,8 @@ const Footer = () => {
               <div className="flex items-start space-x-3">
                 <MapPin className="w-5 h-5 text-primary mt-0.5" />
                 <div>
-                  <p className="text-foreground font-semibold">Точка продаж:</p>
-                  <p className="text-muted-foreground text-sm">г. Казань, ул. Габдуллы Тукая, д. 64</p>
+                  <p className="text-foreground font-semibold">Точки установки:</p>
+                  <p className="text-muted-foreground text-sm">Более 30 сервисов по СНГ</p>
                 </div>
               </div>
             </div>
