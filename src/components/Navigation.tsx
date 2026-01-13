@@ -73,7 +73,7 @@ const Navigation = memo(() => {
                     {item.label}
                   </Link>
                 ) : (
-                  
+                  <a
                     key={item.label}
                     href={item.href}
                     className="text-muted-foreground hover:text-primary transition-colors duration-300 font-medium"
@@ -142,7 +142,7 @@ const Navigation = memo(() => {
                       {item.label}
                     </Link>
                   ) : (
-                    
+                    <a
                       key={item.label}
                       href={item.href}
                       className="block px-3 py-2 text-muted-foreground hover:text-primary transition-colors font-medium"
