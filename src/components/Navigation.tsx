@@ -4,12 +4,12 @@ import { GlowButton } from "@/components/ui/glow-button"
 import { Menu, X, Phone, Lock } from "lucide-react"
 import { OptimizedLogo } from "@/components/ui/OptimizedLogo"
 import { useThrottledScroll } from "@/hooks/useThrottledScroll"
-import { CitiesModal } from "@/components/CitiesModal" // ДОБАВЬ ЭТОТ ИМПОРТ
+import { CitiesModal } from "@/components/CitiesModal"
 
 const Navigation = memo(() => {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false) // ДОБАВЬ ЭТО СОСТОЯНИЕ
+  const [isServiceModalOpen, setIsServiceModalOpen] = useState(false)
 
   useThrottledScroll(useCallback((scrollY: number) => {
     setIsScrolled(scrollY > 50)
@@ -27,7 +27,6 @@ const Navigation = memo(() => {
     setIsMobileMenuOpen(false)
   }, [])
 
-  // ДОБАВЬ ЭТУ ФУНКЦИЮ
   const openServiceModal = useCallback(() => {
     setIsServiceModalOpen(true)
     closeMobileMenu()
@@ -37,10 +36,10 @@ const Navigation = memo(() => {
     { label: "О компании", href: "#about" },
     { label: "H2 Генераторы", href: "#products" },
     { label: "Eco Pro", href: "/eco-pro", isRoute: true },
-    { label: "Список сервисов", onClick: openServiceModal, isButton: true }, // ДОБАВЬ ЭТОТ ПУНКТ
+    { label: "Список сервисов", onClick: openServiceModal, isButton: true },
     { label: "FAQ", href: "#faq" },
     { label: "Контакты", href: "#contacts" }
-  ], [openServiceModal]) // ДОБАВЬ openServiceModal В ЗАВИСИМОСТИ
+  ], [openServiceModal])
 
   return (
     <>
@@ -183,7 +182,7 @@ const Navigation = memo(() => {
         </div>
       </nav>
 
-      {/* ДОБАВЬ МОДАЛЬНОЕ ОКНО */}
+      {/* Модальное окно География работы */}
       <CitiesModal 
         open={isServiceModalOpen} 
         onOpenChange={setIsServiceModalOpen} 
