@@ -19,6 +19,7 @@ mapboxgl.accessToken =
   "pk.eyJ1IjoibWF0b3Jpbml2YW4iLCJhIjoiY21oamFoYWIwMTllcDJwcTZmeHQ3aXRkdyJ9.Z_Pirq2egAM9Kkro8sI0cA";
 
 const cities: CityMapLocation[] = [
+  { name: "Грузия, г.Кутаиси", address: "ул.Эристави, 2 переулок, дом 2 т.", phone: "995597820023", telegramId: "53364728", coordinates: [42.699486, 42.260714] },
   { name: "Евпатория", address: "ул. Дмитрия Ульянова 92", phone: "+7 (978) 685-14-76", telegramId: "5279470366", coordinates: [33.3714, 45.211428] },
   { name: "Екатеринбург", address: "ул. Артинская, 24", phone: "+7 (922) 181-43-58", telegramId: "955435796", coordinates: [60.5839825, 56.868571] },
   { name: "Екатеринбург", address: "10-ая Самородная, д. 5, помещение 11", phone: "8-800-350-28-47", telegramId: "798903140", coordinates: [60.560949, 56.682822] },
