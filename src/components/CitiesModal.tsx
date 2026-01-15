@@ -10,6 +10,7 @@ import { CityMap } from "@/components/CityMap";
 import { BookingForm } from "@/components/BookingFormPortal";
 
 const branches = [
+  { city: "Грузия, г.Кутаиси", address: "ул.Эристави, 2 переулок, дом 2 т.", phone: "995597820023", telegramId: "53364728" },
   { city: "Евпатория", address: "ул. Дмитрия Ульянова 92", phone: "+7 (978) 685-14-76", telegramId: "5279470366" },
   { city: "Екатеринбург", address: "ул. Артинская, 24", phone: "+7 (922) 181-43-58", telegramId: "955435796" },
   { city: "Екатеринбург", address: "10-ая Самородная, д. 5, помещение 11", phone: "8-800-350-28-47", telegramId: "798903140" },
